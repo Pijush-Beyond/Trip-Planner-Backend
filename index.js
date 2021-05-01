@@ -1,14 +1,12 @@
 import express from 'express';
 import bodyParser from "body-parser";
 import morgan from "morgan";
-import handlebars from 'express-handlebars';
-import errorlogger, { log } from 'express-errorlog';
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config();
 
-import path from 'path';
-import { readdirSync } from 'fs'
+import authentication from './src/routers/authenticate.js';
+import errorlogger from './src/utilities/errorlogger.js';
 
 const app = express();
 
@@ -18,24 +16,21 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(morgan('tiny'));
 
-app.use(errorlogger)
+// app.use(errorlogger)
 
 
 app.use(cookieParser());
 
 
+// routers starts here
 app.use(authentication);
-app.use(main);
+// ends here
 
 
+//url not found error handler: status 404
+app.use((req, res, next) => res.status(404).json({ data: null,message:null,error_message: "Method not Allowed", status: 404}))
 
-app.use((err, req, res, next) => {
-  if (process.env.NODE_ENV === "development") {
-    log.error(JSON.stringify(err, null, 2));
-    console.log(err.stack);
-  }
-  res.status(err.status || 500).json(err)
-})
+app.use(errorlogger)
 
 const port = process.env.PORT || 3000;
 app.listen(port,()=> console.log(`server is running in: http://localhost:${port}/\n`))

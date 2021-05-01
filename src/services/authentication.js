@@ -1,34 +1,28 @@
-import jwt from 'jsonwebtoken';
-import fs from 'fs';
-import { log } from 'express-errorlog';
+import db from "../database/db.js"
 
-export const signIn = (res, data) => {
-  res.cookie('user', jwt.sign(
-    { data },
-    fs.readFileSync('secret.key'),
-    {
-      algorithm: 'HS256'
-    },
-  ))
-}
-
-export default (req, res, next) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-    token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.user) {
-    token = req.cookies.user;
+export const getUser = (userData, bool = false) => new Promise(async (resolve, reject) => {
+  const user = await (await db.User()).findOne({ $and: [{ email: userData.email }, { password: userData.password }] },{_id:false,__v:0})
+    .populate('profile')
+    .catch(e => {
+      e.status = 400;
+      reject(e)
+    });
+    
+  if (Boolean(user)) resolve(bool ? Boolean(user) : user);
+  else {
+    const err = new Error('user not exsist');
+    err.status = 404;
+    reject(err);
   }
+})
 
-  if (token) {
-    try {
-      const data = jwt.verify(token, fs.readFileSync('secret.key'));
-      req.user = data.data;
-      next();
-    } catch (e) {
-      res.redirect('/login');
-    }
-  }
-  else
-    res.redirect('/login');
-}
+export const registerUser = (userData) => new Promise(async (resolve, reject) => {
+  const user = await (await db.User()).create(userData)
+  .catch(e => {
+    e.status = 400;
+    reject(e)
+  });
+  delete user._doc._id;
+  delete user._doc.__v;
+  resolve(user);
+})
