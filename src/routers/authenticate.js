@@ -1,12 +1,14 @@
 import express from 'express';
-import { getUser, registerUser } from '../services/authentication.js';
-import { signIn } from "../utilities/authentication.js";
+import { getUser, registerUser, updateProfile } from '../services/authentication.js';
+import authentication, { signIn } from "../utilities/authentication.js";
 
 const router = express.Router();
 
 router.post('/login', async (req, res, next) => {
   try {
     const user = await getUser(req.body);
+    const userData = {...user};
+    delete userData.profile;
     signIn(res, user);
     res.status(200).json({data: user, message: 'login successfull', error_message: null, status: 200});
   } catch (e) { 
@@ -33,4 +35,9 @@ router.post('/registration', (req, res, next) =>
       else next(e);
     })
 )
+
+router.post('/update', authentication, (req, res, next) =>
+  updateProfile(req.user, req.body).then(user => res.sendStatus(204)).catch(e => next(e))
+)
+
 export default router;

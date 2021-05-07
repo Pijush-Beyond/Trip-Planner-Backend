@@ -23,9 +23,14 @@ export default (req, res, next) => {
       req.user = data.data;
       next();
     } catch (e) {
-      res.redirect('/login');
+      const error = new Error('You are not logged in.');
+      error.status = 401;
+      next(error)
     }
   }
-  else
-    res.redirect('/login');
+  else{
+    const error = new Error('You are not logged in.');
+    error.status = 401;
+    next(error)
+  }
 }

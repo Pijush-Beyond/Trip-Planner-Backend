@@ -14,6 +14,10 @@ export default new mongoose.Schema({
   profile: {
     type: mongoose.Types.ObjectId,
     ref: 'Profile',
+  },
+  active:{
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: false,
