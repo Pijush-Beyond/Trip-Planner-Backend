@@ -2,11 +2,11 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import { log } from 'express-errorlog';
 
-export const signIn = (res, data) => {
+export const signIn = (req, res, data) => {
   res.cookie('user', jwt.sign(
     { data },
     fs.readFileSync('secret.key'),
-  ))
+  ));
 }
 
 export default (req, res, next) => {
@@ -25,12 +25,18 @@ export default (req, res, next) => {
     } catch (e) {
       const error = new Error('You are not logged in.');
       error.status = 401;
+      error.error = {
+        error: "You are not logged in."
+      };
       next(error)
     }
   }
   else{
     const error = new Error('You are not logged in.');
     error.status = 401;
+    error.error = {
+      error: "You are not logged in."
+    };
     next(error)
   }
 }

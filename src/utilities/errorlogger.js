@@ -12,5 +12,5 @@ export default ( err, req, res, next,) => {
   ];
   appendFile('errorlog.log', errorMess.join(''),(e)=> e?console.log(e):'')
   
-  res.status(err.status || 500).json({ data: null, message: null, error_message: err.message || err, status: err.status || 500 })
+  res.status(err.status || 500).json({ data: null, message: null, error_message: err.message || err, status: err.status || 500, error: err.error || {} })
 }

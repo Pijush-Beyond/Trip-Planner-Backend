@@ -7,7 +7,10 @@ export default new mongoose.Schema({
     required: [true, "profile must reference a user"],
     unique: true,
   },
-  dp: String,
+  dp: {
+    type: String,
+    get:(v)=> `/public/${v}`,
+  },
   firstName: {type: String, trim: true},
   lastName: { type: String, trim: true },
   gender: {
@@ -22,7 +25,6 @@ export default new mongoose.Schema({
       return genderToEmun[v];
     }
   },
-  qoute: String,
   description: String,
 }, {
   timestamps: false,

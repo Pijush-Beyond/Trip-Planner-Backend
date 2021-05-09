@@ -13,6 +13,9 @@ export const getUser = (userData, bool = false) => new Promise(async (resolve, r
   else {
     const err = new Error('user not exsist');
     err.status = 404;
+    err.error = {
+      error: "Invalid Creadintials"
+    }
     reject(err);
   }
 })
@@ -21,6 +24,9 @@ export const registerUser = (userData) => new Promise(async (resolve, reject) =>
   const user = await (await db.User()).create(userData)
   .catch(e => {
     e.status = 400;
+    e.error = {
+      email: "Email already Exists"
+    }
     reject(e)
   });
   delete user._doc._id;
@@ -31,7 +37,7 @@ export const registerUser = (userData) => new Promise(async (resolve, reject) =>
 export const updateProfile = (userData, userUpdate) => new Promise(async (resolve, reject) => {
   const userUpdateData = {...userUpdate};
   delete userUpdateData.profile;
-  const profileUpdateData = { ...userUpdate.profile };
+  const profileUpdateData = { ...userUpdate };
   
   await db.Profile();
   const user = await (await db.User()).findOne({ $and: [{ email: userData.email }, { password: userData.password }] }, { __v: 0 })
@@ -40,6 +46,9 @@ export const updateProfile = (userData, userUpdate) => new Promise(async (resolv
   if (!user) {
     const err = new Error('user not exsist');
     err.status = 404;
+    err.error = {
+      error: "Your account does not exist"
+    }
     reject(err);
     return;
   }
@@ -59,6 +68,7 @@ export const updateProfile = (userData, userUpdate) => new Promise(async (resolv
     user.profile.save().then(() => resolve(true))
   ).catch(e => {
     e.status = 400;
+    e.error = {unknown: "Went something wrong"}
     reject(e);
   })
 })

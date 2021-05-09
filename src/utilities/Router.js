@@ -1,6 +1,6 @@
 class Router{
   static asRouter = async (req, res, next) => {
-    const preResponse = { data: null, message: "Successfull!", error_message: null, status: 200 };
+    const preResponse = { data: null, message: "Successfull!", error_message: null, status: 200, error: {} };
     try {
       if (this[req.method.toLowerCase()]) {
         let reponse;
@@ -23,7 +23,7 @@ class Router{
           throw err
         }
       } else {
-        const errr = new Error('Invalid response type');
+        const errr = new Error('Method not Allowed');
         err.status = 405
         throw err;
       }
